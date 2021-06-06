@@ -1,4 +1,4 @@
-#include <Windows.h>
+п»ї#include <Windows.h>
 #include <stdexcept>
 #include <stdint.h>
 #include <iostream>
@@ -14,7 +14,7 @@
 #define DRAW_MODE_BACK		0b100
 
 
-// цвет элемента
+// С†РІРµС‚ СЌР»РµРјРµРЅС‚Р°
 enum Color {
 	Black = 0,
 	Blue,
@@ -35,33 +35,33 @@ enum Color {
 };
 
 
-// плитка под 1 консольный символ
+// РїР»РёС‚РєР° РїРѕРґ 1 РєРѕРЅСЃРѕР»СЊРЅС‹Р№ СЃРёРјРІРѕР»
 struct Tile {
 	wchar_t lit = '-';
 	Color front = Color::White;
 	Color back = Color::Black;
 
-	// проверяет по символу, цвету символа и цвету фона
+	// РїСЂРѕРІРµСЂСЏРµС‚ РїРѕ СЃРёРјРІРѕР»Сѓ, С†РІРµС‚Сѓ СЃРёРјРІРѕР»Р° Рё С†РІРµС‚Сѓ С„РѕРЅР°
 	inline bool operator==(const Tile& tile) {
 		return tile.lit == lit and tile.front == front and tile.back == back;
 	}
 
-	// проверяет по символу, цвету символа и цвету фона
+	// РїСЂРѕРІРµСЂСЏРµС‚ РїРѕ СЃРёРјРІРѕР»Сѓ, С†РІРµС‚Сѓ СЃРёРјРІРѕР»Р° Рё С†РІРµС‚Сѓ С„РѕРЅР°
 	inline bool operator!=(const Tile& tile) {
 		return tile.lit != lit or tile.front != front or tile.back != back;
 	}
 
-	// цвет фона и символа в wAttributes
+	// С†РІРµС‚ С„РѕРЅР° Рё СЃРёРјРІРѕР»Р° РІ wAttributes
 	inline WORD ColorToAttribute() {
 		return (back << 4) | front;
 	}
 };
 
 
-// область экрана
+// РѕР±Р»Р°СЃС‚СЊ СЌРєСЂР°РЅР°
 class RenderRect {
 public:
-	// создает область
+	// СЃРѕР·РґР°РµС‚ РѕР±Р»Р°СЃС‚СЊ
 	RenderRect(int32_t x0, int32_t y0, int32_t x1, int32_t y1) {
 		_x0 = x0;
 		_y0 = y0;
@@ -70,7 +70,7 @@ public:
 		_bufer.resize((_x1 - _x0) * (_y1 - _y0));
 	}
 
-	// копирует буффер
+	// РєРѕРїРёСЂСѓРµС‚ Р±СѓС„С„РµСЂ
 	RenderRect(const RenderRect& screen) {
 		_x0 = screen._x0;
 		_y0 = screen._y0;
@@ -79,7 +79,7 @@ public:
 		_bufer = screen._bufer;
 	}
 
-	// оператор копирования
+	// РѕРїРµСЂР°С‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 	void operator=(const RenderRect& screen) {
 		_x0 = screen._x0;
 		_y0 = screen._y0;
@@ -88,9 +88,9 @@ public:
 		_bufer = screen._bufer;
 	}
 
-	// задает плитку по указанным координатам
-	// если globalCoords = false, то координаты задаются относительно (x0, y0)
-	// возращет true в случае успеха
+	// Р·Р°РґР°РµС‚ РїР»РёС‚РєСѓ РїРѕ СѓРєР°Р·Р°РЅРЅС‹Рј РєРѕРѕСЂРґРёРЅР°С‚Р°Рј
+	// РµСЃР»Рё globalCoords = false, С‚Рѕ РєРѕРѕСЂРґРёРЅР°С‚С‹ Р·Р°РґР°СЋС‚СЃСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ (x0, y0)
+	// РІРѕР·СЂР°С‰РµС‚ true РІ СЃР»СѓС‡Р°Рµ СѓСЃРїРµС…Р°
 	bool set(int32_t x, int32_t y, const Tile& tile, bool globalCoords = false) {
 		if (globalCoords) {
 			x -= _x0;
@@ -106,9 +106,9 @@ public:
 		return true;
 	}
 
-	// возращает плитку по указанным координатам
-	// если globalCoords = false, то координаты задаются относительно (x0, y0)
-	// в случае неудачи символ плитки равен NULL
+	// РІРѕР·СЂР°С‰Р°РµС‚ РїР»РёС‚РєСѓ РїРѕ СѓРєР°Р·Р°РЅРЅС‹Рј РєРѕРѕСЂРґРёРЅР°С‚Р°Рј
+	// РµСЃР»Рё globalCoords = false, С‚Рѕ РєРѕРѕСЂРґРёРЅР°С‚С‹ Р·Р°РґР°СЋС‚СЃСЏ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ (x0, y0)
+	// РІ СЃР»СѓС‡Р°Рµ РЅРµСѓРґР°С‡Рё СЃРёРјРІРѕР» РїР»РёС‚РєРё СЂР°РІРµРЅ NULL
 	Tile get(int32_t x, int32_t y, bool globalCoords = false) const{
 		if (globalCoords) {
 			x -= _x0;
@@ -121,14 +121,14 @@ public:
 		return _bufer.at((y * width() + x));
 	}
 
-	// заполняет всю обасть указанной плиткой
+	// Р·Р°РїРѕР»РЅСЏРµС‚ РІСЃСЋ РѕР±Р°СЃС‚СЊ СѓРєР°Р·Р°РЅРЅРѕР№ РїР»РёС‚РєРѕР№
 	inline void fill(const Tile& tile) {
 		for (auto& _tile : _bufer)
 			if (_tile != tile)
 				_tile = tile;
 	}
 
-	// двигает область
+	// РґРІРёРіР°РµС‚ РѕР±Р»Р°СЃС‚СЊ
 	void move(int32_t x, int32_t y) {
 		_x0 += x;
 		_y0 += y;
@@ -136,22 +136,22 @@ public:
 		_y1 += y;
 	}
 
-	// изменяет положение
+	// РёР·РјРµРЅСЏРµС‚ РїРѕР»РѕР¶РµРЅРёРµ
 	void replace(int32_t x, int32_t y) {
 		move(x - _x0, y - _y0);
 	}
 
-	// длинна буфера 
+	// РґР»РёРЅРЅР° Р±СѓС„РµСЂР° 
 	inline size_t length() const {
 		return _bufer.size();
 	}
 
-	// ширина области
+	// С€РёСЂРёРЅР° РѕР±Р»Р°СЃС‚Рё
 	inline int32_t width() const {
 		return _x1 - _x0;
 	}
 
-	// высота области
+	// РІС‹СЃРѕС‚Р° РѕР±Р»Р°СЃС‚Рё
 	inline int32_t height() const  {
 		return _y1 - _y0;
 	}
@@ -163,13 +163,13 @@ public:
 
 private:
 
-	int32_t _x0, _y0, _x1, _y1;	// координаты прямоугольника
-	std::vector<Tile> _bufer;	// буфер плиток
+	int32_t _x0, _y0, _x1, _y1;	// РєРѕРѕСЂРґРёРЅР°С‚С‹ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР°
+	std::vector<Tile> _bufer;	// Р±СѓС„РµСЂ РїР»РёС‚РѕРє
 
 };
 
 
-// апи для вывода в консоль
+// Р°РїРё РґР»СЏ РІС‹РІРѕРґР° РІ РєРѕРЅСЃРѕР»СЊ
 class Window{
 public:
 	Window() : 
@@ -177,7 +177,7 @@ public:
 		_hConsole(NULL), _hScene(NULL),
 		_screen(0, 0, 0, 0) {};
 
-	// создает окно заданного размера
+	// СЃРѕР·РґР°РµС‚ РѕРєРЅРѕ Р·Р°РґР°РЅРЅРѕРіРѕ СЂР°Р·РјРµСЂР°
 	void create(uint32_t w, uint32_t h, const wchar_t* title) {
 		SetConsoleTitle(title);
 		_hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -185,13 +185,13 @@ public:
 		resize(w, h);
 	}
 
-	// создает дополнительный буфер консоли
+	// СЃРѕР·РґР°РµС‚ РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Р№ Р±СѓС„РµСЂ РєРѕРЅСЃРѕР»Рё
 	void createBufer() {
 		_hScene = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, NULL, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 		return;
 	}
 
-	// изменяет размеры окна
+	// РёР·РјРµРЅСЏРµС‚ СЂР°Р·РјРµСЂС‹ РѕРєРЅР°
 	void resize(uint32_t w, uint32_t h) {
 		_w = w;
 		_h = h;
@@ -204,12 +204,12 @@ public:
 		refreshSize();
 	}
 
-	// очищает буфер
+	// РѕС‡РёС‰Р°РµС‚ Р±СѓС„РµСЂ
 	void clear(const Tile& tile = Tile()) {
 		_screen.fill(tile);
 	}
 
-	// добавляет RenderRect
+	// РґРѕР±Р°РІР»СЏРµС‚ RenderRect
 	void draw(const RenderRect& screen, int mode = DRAW_MODE_ALL) {
 		for (int32_t y = screen.y0; y < screen.y1; y++) {
 			for (int32_t x = screen.x0; x < screen.x1; x++) {
@@ -229,14 +229,14 @@ public:
 		return;
 	}
 
-	// отрисовывает буфер
+	// РѕС‚СЂРёСЃРѕРІС‹РІР°РµС‚ Р±СѓС„РµСЂ
 	void display(int mode) {
 		if (mode & REFRESH_WINDOW_SIZE) 
 			refreshSize();
 
-		// монохромная отрисовка
+		// РјРѕРЅРѕС…СЂРѕРјРЅР°СЏ РѕС‚СЂРёСЃРѕРІРєР°
 		if (mode & MONOCHROME_MODE) {
-			// копирует атрибуты в буффер консоли
+			// РєРѕРїРёСЂСѓРµС‚ Р°С‚СЂРёР±СѓС‚С‹ РІ Р±СѓС„С„РµСЂ РєРѕРЅСЃРѕР»Рё
 			std::wstring _literals;
 			for (int32_t y = 0; y < _screen.height(); y++) {
 				for (int32_t x = 0; x < _screen.width(); x++) {
@@ -247,9 +247,9 @@ public:
 			WriteConsole(_hScene, _literals.c_str(), _literals.size(), NULL, NULL);
 		}
 
-		// цветная отрисовка 
+		// С†РІРµС‚РЅР°СЏ РѕС‚СЂРёСЃРѕРІРєР° 
 		else {
-			// копирует атрибуты в буффер консоли
+			// РєРѕРїРёСЂСѓРµС‚ Р°С‚СЂРёР±СѓС‚С‹ РІ Р±СѓС„С„РµСЂ РєРѕРЅСЃРѕР»Рё
 			std::wstring _literals;
 			
 			for (int32_t y = 0; y < _screen.height(); y++) {
@@ -270,7 +270,7 @@ public:
 			}	
 		}
 
-		// копирует со сцены в консоль
+		// РєРѕРїРёСЂСѓРµС‚ СЃРѕ СЃС†РµРЅС‹ РІ РєРѕРЅСЃРѕР»СЊ
 		std::vector<CHAR_INFO> bufer(_w * _h);
 		SMALL_RECT rect = { 0, 0, _w - 1, _h - 1 };
 		ReadConsoleOutput(
@@ -286,15 +286,15 @@ public:
 			&rect);
 	}
 protected:
-	// востанавливает размер окна
+	// РІРѕСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ СЂР°Р·РјРµСЂ РѕРєРЅР°
 	void refreshSize() {
 		SMALL_RECT rect = { 0, 0, _w + 1, _h + 1};
 		SetConsoleWindowInfo(_hConsole, true, &rect);
 		SetConsoleWindowInfo(_hScene, true, &rect);
 	}
 
-	uint32_t _w, _h;		// высота и ширина сцены
-	HANDLE _hConsole;		// дескриптор консоли
-	HANDLE _hScene;			// сцена
-	RenderRect _screen;		// буфер окна
+	uint32_t _w, _h;		// РІС‹СЃРѕС‚Р° Рё С€РёСЂРёРЅР° СЃС†РµРЅС‹
+	HANDLE _hConsole;		// РґРµСЃРєСЂРёРїС‚РѕСЂ РєРѕРЅСЃРѕР»Рё
+	HANDLE _hScene;			// СЃС†РµРЅР°
+	RenderRect _screen;		// Р±СѓС„РµСЂ РѕРєРЅР°
 };
